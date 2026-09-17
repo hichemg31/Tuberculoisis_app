@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>testWPF</RootNamespace>
+    <AssemblyName>testWPF</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Lung_Labeled_Diagram2.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- 
+    ============================================================
+    DevExpress NuGet Packages - Uncomment once you have access
+    to the DevExpress NuGet feed or local packages installed.
+    
+    To set up the DevExpress NuGet feed:
+    dotnet nuget add source https://nuget.devexpress.com/api -n DevExpress -u <your-email> -p <your-key>
+    ============================================================
+  -->
+  <!--
+  <ItemGroup>
+    <PackageReference Include="DevExpress.Wpf.Grid" Version="24.2.*" />
+    <PackageReference Include="DevExpress.Wpf.Editors" Version="24.2.*" />
+    <PackageReference Include="DevExpress.Wpf.Navigation" Version="24.2.*" />
+    <PackageReference Include="DevExpress.Wpf.Themes.Office2019Black" Version="24.2.*" />
+  </ItemGroup>
+  -->
+
+</Project>

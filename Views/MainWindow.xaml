@@ -1,0 +1,623 @@
+<Window x:Class="testWPF.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:testWPF.ViewModels"
+        xmlns:conv="clr-namespace:testWPF.Converters"
+        Title="Registre de Déclaration des Cas de Tuberculose"
+        Width="1440" Height="820"
+        MinWidth="1024" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Style="{StaticResource DarkWindowStyle}">
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Window.Resources>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVis" />
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis" />
+        <conv:ByteArrayToImageConverter x:Key="ByteArrayToImage" />
+
+        <!-- Header style for grouped column labels above the DataGrid -->
+        <Style x:Key="GroupHeaderText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <!-- Section header inside the form panel -->
+        <Style x:Key="FormSectionHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
+            <Setter Property="Margin" Value="0,16,0,8" />
+        </Style>
+
+        <!-- Field label inside the form panel -->
+        <Style x:Key="FormLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ══════════════════════════════════════════════════════════
+             SIDEBAR
+             ══════════════════════════════════════════════════════════ -->
+        <Border Grid.Column="0"
+                Background="{StaticResource SecondaryBackgroundBrush}"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="0,0,1,0">
+            <DockPanel>
+                <!-- App Header -->
+                <Border DockPanel.Dock="Top" Padding="18,22,18,18">
+                    <StackPanel>
+                        <TextBlock Text="🏥" FontSize="28" Margin="0,0,0,8" />
+                        <TextBlock Text="Registre" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryTextBrush}" />
+                        <TextBlock Text="Tuberculose" FontSize="20" FontWeight="Light"
+                                   Foreground="{StaticResource AccentBrush}" Margin="0,-2,0,0" />
+                        <TextBlock Text="Déclaration des cas" FontSize="11"
+                                   Foreground="{StaticResource MutedTextBrush}" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <Border DockPanel.Dock="Top" Height="1" Background="{StaticResource BorderBrush}" Margin="14,0" />
+
+                <!-- Navigation -->
+                <StackPanel DockPanel.Dock="Top" Margin="10,14">
+                    <Border Background="{StaticResource AccentBrush}" CornerRadius="8" Padding="12,10" Margin="0,2">
+                        <TextBlock Text="📋  Registre" FontSize="13" FontWeight="SemiBold" Foreground="White" />
+                    </Border>
+                    <Border Background="Transparent" CornerRadius="8" Padding="12,10" Margin="0,2" Opacity="0.5">
+                        <TextBlock Text="📊  Statistiques" FontSize="13" Foreground="{StaticResource SecondaryTextBrush}" />
+                    </Border>
+                    <Border Background="Transparent" CornerRadius="8" Padding="12,10" Margin="0,2" Opacity="0.5">
+                        <TextBlock Text="⚙️  Paramètres" FontSize="13" Foreground="{StaticResource SecondaryTextBrush}" />
+                    </Border>
+                </StackPanel>
+
+                <!-- Stats Panel -->
+                <Border DockPanel.Dock="Bottom" Padding="14,14" VerticalAlignment="Bottom">
+                    <StackPanel>
+                        <TextBlock Text="STATISTIQUES" FontSize="10" FontWeight="Bold"
+                                   Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,10" />
+
+                        <Border Background="{StaticResource TertiaryBackgroundBrush}" CornerRadius="8"
+                                Padding="10,8" Margin="0,3">
+                            <DockPanel>
+                                <TextBlock Text="Total cas" FontSize="12"
+                                           Foreground="{StaticResource SecondaryTextBrush}" />
+                                <TextBlock Text="{Binding TotalCases}" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}"
+                                           HorizontalAlignment="Right" DockPanel.Dock="Right" />
+                            </DockPanel>
+                        </Border>
+
+                        <Border Background="{StaticResource TertiaryBackgroundBrush}" CornerRadius="8"
+                                Padding="10,8" Margin="0,3">
+                            <DockPanel>
+                                <TextBlock Text="Nouveaux (N)" FontSize="12"
+                                           Foreground="{StaticResource InfoBrush}" />
+                                <TextBlock Text="{Binding NewCases}" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource InfoBrush}"
+                                           HorizontalAlignment="Right" DockPanel.Dock="Right" />
+                            </DockPanel>
+                        </Border>
+
+                        <Border Background="{StaticResource TertiaryBackgroundBrush}" CornerRadius="8"
+                                Padding="10,8" Margin="0,3">
+                            <DockPanel>
+                                <TextBlock Text="Rechutes (R)" FontSize="12"
+                                           Foreground="{StaticResource WarningBrush}" />
+                                <TextBlock Text="{Binding RelapseCases}" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource WarningBrush}"
+                                           HorizontalAlignment="Right" DockPanel.Dock="Right" />
+                            </DockPanel>
+                        </Border>
+
+                        <Border Background="{StaticResource TertiaryBackgroundBrush}" CornerRadius="8"
+                                Padding="10,8" Margin="0,3">
+                            <DockPanel>
+                                <TextBlock Text="Guéris" FontSize="12"
+                                           Foreground="{StaticResource SuccessBrush}" />
+                                <TextBlock Text="{Binding CuredCases}" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource SuccessBrush}"
+                                           HorizontalAlignment="Right" DockPanel.Dock="Right" />
+                            </DockPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </DockPanel>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════
+             MAIN CONTENT
+             ══════════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- ── Toolbar ────────────────────────────────────────── -->
+            <Border Grid.Row="0" Padding="20,16,20,0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Left">
+                        <TextBlock Text="Registre des Cas" FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource PrimaryTextBrush}" />
+                        <TextBlock Text="Registre de déclaration des cas de tuberculose"
+                                   FontSize="12" Foreground="{StaticResource SecondaryTextBrush}"
+                                   Margin="0,2,0,0" />
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
+                                HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Button Content="✕  Effacer"
+                                Style="{StaticResource IconButton}"
+                                Command="{Binding ClearFiltersCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="🗑  Supprimer"
+                                Style="{StaticResource DangerButton}"
+                                Command="{Binding DeleteCaseCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="✏️  Modifier"
+                                Style="{StaticResource SecondaryButton}"
+                                Command="{Binding EditCaseCommand}"
+                                Margin="0,0,8,0" />
+                        <Button Content="＋  Nouveau Cas"
+                                Style="{StaticResource PrimaryButton}"
+                                Command="{Binding AddCaseCommand}" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- ── Search Bar ─────────────────────────────────────── -->
+            <Border Grid.Row="1" Padding="20,12,20,6">
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="13" />
+            </Border>
+
+            <!-- ── Content Area (DataGrid + Form Panel) ───────────── -->
+            <Grid Grid.Row="2" Margin="20,6,20,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- ══════════════════════════════════════════════════
+                     DATA GRID – 32 Columns
+                     ══════════════════════════════════════════════════ -->
+                <Border Grid.Column="0" CornerRadius="8"
+                        Background="{StaticResource SecondaryBackgroundBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1" ClipToBounds="True">
+                    <DataGrid ItemsSource="{Binding CasesView}"
+                              SelectedItem="{Binding SelectedCase, Mode=TwoWay}"
+                              HorizontalScrollBarVisibility="Visible"
+                              VerticalScrollBarVisibility="Visible"
+                              ColumnHeaderHeight="52"
+                              FrozenColumnCount="0">
+                        <DataGrid.Columns>
+                            <!-- ── Identification (1–6) ──────────── -->
+                            <DataGridTextColumn Header="N°" Binding="{Binding NumeroOrdre}" Width="50" />
+                            <DataGridTextColumn Header="Date Enreg." Binding="{Binding DateEnregistrement, StringFormat=d}" Width="95" />
+                            <DataGridTextColumn Header="Nom et Prénom" Binding="{Binding NomPrenom}" Width="170" />
+                            <DataGridTextColumn Header="Sexe" Binding="{Binding Sexe}" Width="50" />
+                            <DataGridTextColumn Header="Age" Binding="{Binding Age}" Width="45" />
+                            <DataGridTextColumn Header="Adresse" Binding="{Binding AdresseComplete}" Width="150" />
+
+                            <!-- ── Traitement (7–9) ──────────────── -->
+                            <DataGridTextColumn Header="Date Début Trait." Binding="{Binding DateDebutTraitement, StringFormat=d}" Width="95" />
+                            <DataGridTextColumn Header="Lieu Début Trait." Binding="{Binding LieuDebutTraitement}" Width="110" />
+                            <DataGridTextColumn Header="Régime" Binding="{Binding RegimeTraitement}" Width="80" />
+
+                            <!-- ── Classification (10) ───────────── -->
+                            <DataGridTextColumn Header="TP/TEP" Binding="{Binding TpOuTep}" Width="65" />
+
+                            <!-- ── Type des malades (11–16) ──────── -->
+                            <DataGridCheckBoxColumn Header="N" Binding="{Binding TypeN, UpdateSourceTrigger=PropertyChanged}" Width="38" />
+                            <DataGridCheckBoxColumn Header="R" Binding="{Binding TypeR, UpdateSourceTrigger=PropertyChanged}" Width="38" />
+                            <DataGridCheckBoxColumn Header="E" Binding="{Binding TypeE, UpdateSourceTrigger=PropertyChanged}" Width="38" />
+                            <DataGridCheckBoxColumn Header="REP" Binding="{Binding TypeREP, UpdateSourceTrigger=PropertyChanged}" Width="45" />
+                            <DataGridCheckBoxColumn Header="T" Binding="{Binding TypeT, UpdateSourceTrigger=PropertyChanged}" Width="38" />
+                            <DataGridCheckBoxColumn Header="A" Binding="{Binding TypeA, UpdateSourceTrigger=PropertyChanged}" Width="38" />
+
+                            <!-- ── Examens microscopiques (17–25) ── -->
+                            <DataGridTextColumn Header="Pré-Trait. Frottis" Binding="{Binding PreTraitFrottis}" Width="82" />
+                            <DataGridTextColumn Header="Pré-Trait. Cult" Binding="{Binding PreTraitCult}" Width="75" />
+                            <DataGridTextColumn Header="Fin 2e/3e Frot." Binding="{Binding Fin2eMoisFrottis}" Width="78" />
+                            <DataGridTextColumn Header="Fin 2e/3e Cult." Binding="{Binding Fin2eMoisCult}" Width="75" />
+                            <DataGridTextColumn Header="Fin 4e/5e Frot." Binding="{Binding Fin4eMoisFrottis}" Width="78" />
+                            <DataGridTextColumn Header="Fin 4e/5e Cult." Binding="{Binding Fin4eMoisCult}" Width="75" />
+                            <DataGridTextColumn Header="6e/8e mois Frot." Binding="{Binding Mois6ou8Frottis}" Width="80" />
+                            <DataGridTextColumn Header="6e/8e mois Cult." Binding="{Binding Mois6ou8Cult}" Width="78" />
+                            <DataGridTextColumn Header="Au-delà Frot." Binding="{Binding AuDelaFrottis}" Width="78" />
+
+                            <!-- ── Résultat traitement (26–31) ───── -->
+                            <DataGridTextColumn Header="Guéris/Terminé" Binding="{Binding GuerisTraitTermine}" Width="82" />
+                            <DataGridTextColumn Header="Pas Bact." Binding="{Binding PasExamenBacteriol}" Width="72" />
+                            <DataGridTextColumn Header="Décédé" Binding="{Binding Decede}" Width="65" />
+                            <DataGridTextColumn Header="Échec" Binding="{Binding Echec}" Width="60" />
+                            <DataGridTextColumn Header="Perdu Vue" Binding="{Binding PerduDeVue}" Width="78" />
+                            <DataGridTextColumn Header="Transf." Binding="{Binding Transfere}" Width="65" />
+
+                            <!-- ── Observation (32) ──────────────── -->
+                            <DataGridTextColumn Header="Observation" Binding="{Binding Observation}" Width="160" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════
+                     ADD / EDIT FORM PANEL
+                     ══════════════════════════════════════════════════ -->
+                <Border Grid.Column="1"
+                        Width="380"
+                        Margin="14,0,0,0"
+                        Background="{StaticResource SecondaryBackgroundBrush}"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Visibility="{Binding IsFormVisible, Converter={StaticResource BoolToVis}}">
+                    <DockPanel>
+                        <!-- Form Header -->
+                        <Border DockPanel.Dock="Top" Padding="20,16,20,0">
+                            <DockPanel>
+                                <TextBlock Text="{Binding FormTitle}" FontSize="17" FontWeight="Bold"
+                                           Foreground="{StaticResource PrimaryTextBrush}" />
+                                <Button Content="✕" Style="{StaticResource IconButton}"
+                                        Command="{Binding CancelFormCommand}"
+                                        DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                        Padding="4,2" FontSize="14" />
+                            </DockPanel>
+                        </Border>
+
+                        <!-- Form Actions (Bottom) -->
+                        <Border DockPanel.Dock="Bottom" Padding="20,12,20,16">
+                            <StackPanel>
+                                <Button Content="Enregistrer"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Command="{Binding SaveCaseCommand}"
+                                        HorizontalAlignment="Stretch" Padding="16,12" />
+                                <Button Content="Annuler"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding CancelFormCommand}"
+                                        HorizontalAlignment="Stretch"
+                                        Padding="16,10" Margin="0,8,0,0" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Form Fields (Scrollable) -->
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="20,6,20,0">
+                            <StackPanel>
+
+                                <!-- ── Section: Identification ──── -->
+                                <TextBlock Text="Identification" Style="{StaticResource FormSectionHeader}" Margin="0,4,0,8" />
+
+                                <TextBlock Text="Numéro d'ordre" Style="{StaticResource FormLabel}" />
+                                <TextBox Text="{Binding EditingCase.NumeroOrdre, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+                                <TextBlock Text="Date d'enregistrement" Style="{StaticResource FormLabel}" />
+                                <DatePicker SelectedDate="{Binding EditingCase.DateEnregistrement}"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            Foreground="{StaticResource PrimaryTextBrush}"
+                                            BorderBrush="{StaticResource BorderBrush}"
+                                            Margin="0,0,0,10" />
+
+                                <TextBlock Text="Nom et Prénom" Style="{StaticResource FormLabel}" />
+                                <TextBox Text="{Binding EditingCase.NomPrenom, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Sexe" Style="{StaticResource FormLabel}" />
+                                        <ComboBox ItemsSource="{Binding SexeOptions}"
+                                                  SelectedItem="{Binding EditingCase.Sexe}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Age" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Age, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Adresse complète" Style="{StaticResource FormLabel}" />
+                                <TextBox Text="{Binding EditingCase.AdresseComplete, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" AcceptsReturn="True" MinHeight="48" Margin="0,0,0,10" />
+
+                                <!-- ── Section: Traitement ──────── -->
+                                <TextBlock Text="Traitement" Style="{StaticResource FormSectionHeader}" />
+
+                                <TextBlock Text="Date du début du traitement" Style="{StaticResource FormLabel}" />
+                                <DatePicker SelectedDate="{Binding EditingCase.DateDebutTraitement}"
+                                            Background="{StaticResource SurfaceBrush}"
+                                            Foreground="{StaticResource PrimaryTextBrush}"
+                                            BorderBrush="{StaticResource BorderBrush}"
+                                            Margin="0,0,0,10" />
+
+                                <TextBlock Text="Lieu du début du traitement" Style="{StaticResource FormLabel}" />
+                                <TextBox Text="{Binding EditingCase.LieuDebutTraitement, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+                                <TextBlock Text="Régime de traitement" Style="{StaticResource FormLabel}" />
+                                <ComboBox ItemsSource="{Binding RegimeTraitementOptions}"
+                                          SelectedItem="{Binding EditingCase.RegimeTraitement, Mode=TwoWay}"
+                                          Margin="0,0,0,10" />
+                                <!-- ── Section: Classification ──── -->
+                                <TextBlock Text="Classification" Style="{StaticResource FormSectionHeader}" />
+
+                                <TextBlock Text="TP ou TEP" Style="{StaticResource FormLabel}" />
+                                <ComboBox ItemsSource="{Binding TpTepOptions}"
+                                          SelectedItem="{Binding EditingCase.TpOuTep}" Margin="0,0,0,10" />
+
+                                <TextBlock Text="Type des malades" Style="{StaticResource FormLabel}" />
+                                <WrapPanel Margin="0,0,0,10">
+                                    <CheckBox Content="N" IsChecked="{Binding EditingCase.TypeN}"
+                                              Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,14,6" />
+                                    <CheckBox Content="R" IsChecked="{Binding EditingCase.TypeR}"
+                                              Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,14,6" />
+                                    <CheckBox Content="E" IsChecked="{Binding EditingCase.TypeE}"
+                                              Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,14,6" />
+                                    <CheckBox Content="REP" IsChecked="{Binding EditingCase.TypeREP}"
+                                              Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,14,6" />
+                                    <CheckBox Content="T" IsChecked="{Binding EditingCase.TypeT}"
+                                              Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,14,6" />
+                                    <CheckBox Content="A" IsChecked="{Binding EditingCase.TypeA}"
+                                              Foreground="{StaticResource PrimaryTextBrush}" Margin="0,0,14,6" />
+                                </WrapPanel>
+
+                                <!-- ── Section: Examens microscopiques ── -->
+                                <TextBlock Text="Examens Microscopiques" Style="{StaticResource FormSectionHeader}" />
+
+                                <TextBlock Text="Pré-traitement" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,4" />
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Frottis" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.PreTraitFrottis, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Culture" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.PreTraitCult, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Fin du 2ème/3ème mois" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,4" />
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Frottis" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Fin2eMoisFrottis, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Culture" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Fin2eMoisCult, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Fin du 4ème/5ème mois" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,4" />
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Frottis" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Fin4eMoisFrottis, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Culture" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Fin4eMoisCult, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="6ème/8ème mois" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{StaticResource MutedTextBrush}" Margin="0,0,0,4" />
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Frottis" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Mois6ou8Frottis, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Culture" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Mois6ou8Cult, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <TextBlock Text="Au-delà du 6ème/8ème mois – Frottis" Style="{StaticResource FormLabel}" />
+                                <TextBox Text="{Binding EditingCase.AuDelaFrottis, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+                                <!-- ── Section: Résultat du traitement ── -->
+                                <TextBlock Text="Résultat du Traitement" Style="{StaticResource FormSectionHeader}" />
+
+                                <TextBlock Text="Guéris / Traitement terminé" Style="{StaticResource FormLabel}" />
+                                <TextBox Text="{Binding EditingCase.GuerisTraitTermine, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+                                <TextBlock Text="Pas d'examen bactériologique" Style="{StaticResource FormLabel}" />
+                                <TextBox Text="{Binding EditingCase.PasExamenBacteriol, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,10" />
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Décédé" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Decede, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Échec" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Echec, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="12" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Perdu de vue" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.PerduDeVue, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Transféré" Style="{StaticResource FormLabel}" />
+                                        <TextBox Text="{Binding EditingCase.Transfere, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- ── Section: Observation ──────── -->
+                                <TextBlock Text="Observation" Style="{StaticResource FormSectionHeader}" />
+
+                                <TextBlock Text="Observation" Style="{StaticResource FormLabel}" />
+                                <TextBox Text="{Binding EditingCase.Observation, UpdateSourceTrigger=PropertyChanged}"
+                                         TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60" Margin="0,0,0,16" />
+
+                                <!-- ── Section: Schéma Pulmonaire ──── -->
+                                <TextBlock Text="Schéma Pulmonaire" Style="{StaticResource FormSectionHeader}" />
+
+                                <Button Command="{Binding OpenLungAnnotationCommand}"
+                                        Cursor="Hand"
+                                        Margin="0,0,0,16"
+                                        HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="CardBorder"
+                                                    Background="{StaticResource TertiaryBackgroundBrush}"
+                                                    BorderBrush="{StaticResource BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="8"
+                                                    Padding="10">
+                                                <Grid>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto" />
+                                                        <RowDefinition Height="140" />
+                                                    </Grid.RowDefinitions>
+
+                                                    <!-- Top Label & Status -->
+                                                    <DockPanel Grid.Row="0" Margin="2,0,2,8">
+                                                        <TextBlock Text="🫁 Schéma pulmonaire"
+                                                                   FontSize="12" FontWeight="SemiBold"
+                                                                   Foreground="{StaticResource PrimaryTextBrush}"
+                                                                   VerticalAlignment="Center" />
+
+                                                        <!-- Status Badge -->
+                                                        <Border DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                                                CornerRadius="4" Padding="6,2"
+                                                                Background="{StaticResource SurfaceBrush}"
+                                                                BorderBrush="{StaticResource BorderBrush}"
+                                                                BorderThickness="1">
+                                                            <TextBlock FontSize="10" FontWeight="SemiBold">
+                                                                <TextBlock.Style>
+                                                                    <Style TargetType="TextBlock">
+                                                                        <Setter Property="Text" Value="Non annoté" />
+                                                                        <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}" />
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding EditingCase.HasLungAnnotation}" Value="True">
+                                                                                <Setter Property="Text" Value="✓ Annoté" />
+                                                                                <Setter Property="Foreground" Value="{StaticResource SuccessBrush}" />
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </TextBlock.Style>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </DockPanel>
+
+                                                    <!-- Schema Thumbnail Preview Container -->
+                                                    <Border Grid.Row="1"
+                                                            Background="#FF1F2228"
+                                                            CornerRadius="6"
+                                                            BorderBrush="{StaticResource BorderBrush}"
+                                                            BorderThickness="1"
+                                                            ClipToBounds="True">
+                                                        <Grid>
+                                                            <!-- Default Image if not annotated -->
+                                                            <Image Source="/Assets/Lung_Labeled_Diagram2.jpg"
+                                                                   Stretch="Uniform"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Opacity="0.85"
+                                                                   Visibility="{Binding EditingCase.HasLungAnnotation, Converter={StaticResource InverseBoolToVis}}" />
+
+                                                            <!-- Annotated Image if available -->
+                                                            <Image Source="{Binding EditingCase.LungDrawing, Converter={StaticResource ByteArrayToImage}}"
+                                                                   Stretch="Uniform"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Visibility="{Binding EditingCase.HasLungAnnotation, Converter={StaticResource BoolToVis}}" />
+
+                                                            <!-- Hover Overlay Hint -->
+                                                            <Border x:Name="HoverOverlay"
+                                                                    Background="#80000000"
+                                                                    Opacity="0"
+                                                                    VerticalAlignment="Stretch"
+                                                                    HorizontalAlignment="Stretch">
+                                                                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                                    <TextBlock Text="✏️" FontSize="20" HorizontalAlignment="Center" Margin="0,0,0,4" />
+                                                                    <TextBlock Text="Cliquer pour annoter"
+                                                                               FontSize="11" FontWeight="SemiBold"
+                                                                               Foreground="White"
+                                                                               HorizontalAlignment="Center" />
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </Grid>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="CardBorder" Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                                    <Setter TargetName="HoverOverlay" Property="Opacity" Value="1" />
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="CardBorder" Property="Background" Value="{StaticResource SurfaceBrush}" />
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                            </StackPanel>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>

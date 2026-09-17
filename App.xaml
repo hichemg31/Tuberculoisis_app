@@ -1,0 +1,27 @@
+<Application x:Class="testWPF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="Views/MainWindow.xaml">
+
+    <!--
+        ═══════════════════════════════════════════════════════════════
+        DevExpress Theme Setup:
+        
+        When DevExpress packages are added, you can apply a built-in
+        theme globally. Add this to App.xaml.cs constructor:
+        
+            DevExpress.Xpf.Core.ApplicationThemeHelper.ApplicationThemeName = 
+                DevExpress.Xpf.Core.Theme.Office2019BlackName;
+        
+        Then you can remove the DarkTheme.xaml resource dictionary below.
+        ═══════════════════════════════════════════════════════════════
+    -->
+
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/DarkTheme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
